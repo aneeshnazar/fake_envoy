@@ -7,16 +7,31 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-  backend:
+  pre_backend:
+    image: envoy_backend
     build:
       context: ./backend
-    command: gunicorn envoy.wsgi --bind 0.0.0.0:8000
     volumes:
       - ./backend/:/backend/
+    depends_on:
+      - db
+  migration:
+    image: envoy_backend
+    command: python manage.py migrate --noinput
+    depends_on:
+      - db
+      - pre_backend
+    volumes:
+      - ./backend:/backend
+  backend:
+    image: envoy_backend
+    volumes:
+      - ./backend:/backend
+    command: gunicorn envoy.wsgi --bind 0.0.0.0:8000
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      - migration
   frontend:
     build:
       context: ./frontend
