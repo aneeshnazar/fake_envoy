@@ -1,0 +1,7 @@
+backend/venv
+ws_backend/venv
+.DS_Store
+.python-version
+.vscode/
+*.idea*
+*__pycache__*
